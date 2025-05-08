@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Leaf, MessageCircle, BarChart3, Users, ShoppingCart, Cloud } from 'lucide-react';
+import { Home, Leaf, MessageCircle, BarChart3, Users, ShoppingCart, Cloud, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -33,13 +33,24 @@ const MobileNav = () => {
       label: isAuthenticated ? "Dashboard" : "Community",
       icon: isAuthenticated ? BarChart3 : Users,
       href: isAuthenticated ? "/dashboard" : "/social"
+    },
+    {
+      label: "Notes",
+      icon: FileText,
+      href: "/farm-notes",
+      requiresAuth: true
     }
   ];
   
+  // Filter out routes that require auth if not authenticated
+  const filteredNavItems = navItems.filter(item => 
+    !item.requiresAuth || (item.requiresAuth && isAuthenticated)
+  ).slice(0, 5); // Only show 5 items max in mobile nav
+  
   return (
     <div className="fixed bottom-0 left-0 z-40 w-full h-16 bg-background border-t border-border md:hidden">
-      <div className="grid h-full" style={{ gridTemplateColumns: `repeat(${navItems.length}, 1fr)` }}>
-        {navItems.map((item) => {
+      <div className="grid h-full" style={{ gridTemplateColumns: `repeat(${filteredNavItems.length}, 1fr)` }}>
+        {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <Link

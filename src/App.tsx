@@ -18,6 +18,7 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import NotFound from "./pages/NotFound";
 import FarmManagement from "./pages/FarmManagement";
+import FarmNotes from "./pages/FarmNotes";
 import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,16 @@ const AppRoutes = () => {
           <MainLayout>
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <FarmManagement />
+            </ProtectedRoute>
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/farm-notes" 
+        element={
+          <MainLayout>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <FarmNotes />
             </ProtectedRoute>
           </MainLayout>
         } 
