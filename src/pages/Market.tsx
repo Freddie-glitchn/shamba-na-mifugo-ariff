@@ -2,7 +2,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -13,375 +20,301 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, TrendingUp, TrendingDown, MapPin, Search } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Separator } from "@/components/ui/separator";
+import { Search, Filter, TrendingUp, ShoppingCart, MapPin, Calendar, Percent } from "lucide-react";
 
-// Mock market price data
-const marketData = [
-  { date: "2023-05-01", maize: 35, beans: 120, potatoes: 45 },
-  { date: "2023-05-08", maize: 38, beans: 110, potatoes: 50 },
-  { date: "2023-05-15", maize: 40, beans: 115, potatoes: 48 },
-  { date: "2023-05-22", maize: 42, beans: 125, potatoes: 52 },
-  { date: "2023-05-29", maize: 45, beans: 130, potatoes: 55 },
-  { date: "2023-06-05", maize: 43, beans: 128, potatoes: 54 },
-  { date: "2023-06-12", maize: 40, beans: 120, potatoes: 50 },
-];
-
-// Mock buyers/markets data
-const buyers = [
+// Mock market data
+const marketPrices = [
   {
     id: 1,
-    name: "Nairobi Farmers Market",
-    type: "Market",
-    location: "Nairobi",
-    contactNumber: "+254 700 123 456",
-    products: ["Maize", "Beans", "Vegetables"],
-    currentPrices: {
-      Maize: "45 KES/kg",
-      Beans: "130 KES/kg",
-      Vegetables: "Varies"
-    }
+    name: "Maize (90kg bag)",
+    price: 3200,
+    lastWeekPrice: 3000,
+    lastMonthPrice: 2800,
+    region: "Nairobi",
+    trend: "up",
+    changePercent: 6.67
   },
   {
     id: 2,
-    name: "Twiga Foods",
-    type: "Distributor",
-    location: "Multiple Locations",
-    contactNumber: "+254 700 789 012",
-    products: ["Maize", "Potatoes", "Vegetables", "Fruits"],
-    currentPrices: {
-      Maize: "47 KES/kg",
-      Potatoes: "55 KES/kg",
-      Vegetables: "Varies",
-      Fruits: "Varies"
-    }
+    name: "Beans (90kg bag)",
+    price: 7800,
+    lastWeekPrice: 8000,
+    lastMonthPrice: 8200,
+    region: "Nairobi",
+    trend: "down",
+    changePercent: -2.5
   },
   {
     id: 3,
-    name: "Mombasa Grain Exchange",
-    type: "Market",
-    location: "Mombasa",
-    contactNumber: "+254 700 345 678",
-    products: ["Maize", "Rice", "Beans"],
-    currentPrices: {
-      Maize: "44 KES/kg",
-      Rice: "120 KES/kg",
-      Beans: "125 KES/kg"
-    }
+    name: "Rice (Pishori, 25kg bag)",
+    price: 3500,
+    lastWeekPrice: 3500,
+    lastMonthPrice: 3400,
+    region: "Mombasa",
+    trend: "stable",
+    changePercent: 0
   },
   {
     id: 4,
-    name: "Kisumu Agricultural Cooperative",
-    type: "Cooperative",
-    location: "Kisumu",
-    contactNumber: "+254 700 901 234",
-    products: ["Maize", "Beans", "Fish"],
-    currentPrices: {
-      Maize: "43 KES/kg",
-      Beans: "128 KES/kg",
-      Fish: "200 KES/kg"
-    }
+    name: "Potatoes (110kg bag)",
+    price: 2200,
+    lastWeekPrice: 2500,
+    lastMonthPrice: 2800,
+    region: "Nakuru",
+    trend: "down",
+    changePercent: -12
   },
   {
     id: 5,
-    name: "Nakuru Farm Supplies",
-    type: "Distributor",
-    location: "Nakuru",
-    contactNumber: "+254 700 567 890",
-    products: ["Maize", "Wheat", "Potatoes"],
-    currentPrices: {
-      Maize: "44 KES/kg",
-      Wheat: "60 KES/kg",
-      Potatoes: "52 KES/kg"
-    }
-  }
-];
-
-// Current price data
-const currentPrices = [
-  {
-    id: 1,
-    product: "Maize",
-    price: 45,
-    unit: "KES/kg",
-    change: 2,
-    trend: "up"
-  },
-  {
-    id: 2,
-    product: "Beans",
-    price: 130,
-    unit: "KES/kg",
-    change: -2,
-    trend: "down"
-  },
-  {
-    id: 3,
-    product: "Potatoes",
-    price: 55,
-    unit: "KES/kg",
-    change: 1,
-    trend: "up"
-  },
-  {
-    id: 4,
-    product: "Rice",
-    price: 120,
-    unit: "KES/kg",
-    change: 0,
-    trend: "stable"
-  },
-  {
-    id: 5,
-    product: "Wheat",
-    price: 60,
-    unit: "KES/kg",
-    change: -1,
-    trend: "down"
+    name: "Tomatoes (64kg crate)",
+    price: 5800,
+    lastWeekPrice: 4500,
+    lastMonthPrice: 4000,
+    region: "Nairobi",
+    trend: "up",
+    changePercent: 28.89
   },
   {
     id: 6,
-    product: "Milk",
-    price: 70,
-    unit: "KES/L",
-    change: 5,
-    trend: "up"
+    name: "Milk (1 liter)",
+    price: 60,
+    lastWeekPrice: 60,
+    lastMonthPrice: 55,
+    region: "Nationwide",
+    trend: "stable",
+    changePercent: 0
   }
 ];
 
-const BuyerCard = ({ buyer }: { buyer: typeof buyers[0] }) => {
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg">{buyer.name}</h3>
-          <Badge variant="outline">{buyer.type}</Badge>
-        </div>
-        
-        <div className="flex items-center text-sm text-muted-foreground mb-4">
-          <MapPin className="h-4 w-4 mr-1" />
-          {buyer.location}
-        </div>
-        
-        <p className="text-sm mb-3">Products: {buyer.products.join(", ")}</p>
-        
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold mb-1">Current Prices:</h4>
-          <ul className="text-sm space-y-1">
-            {Object.entries(buyer.currentPrices).map(([product, price]) => (
-              <li key={product}>
-                {product}: <span className="font-medium">{price}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <div className="text-sm">
-            Contact: {buyer.contactNumber}
-          </div>
-          <Button variant="ghost" size="sm" className="text-farm-green-600 hover:text-farm-green-800 p-0">
-            Details
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+const buyers = [
+  {
+    id: 1,
+    name: "Twiga Foods Ltd",
+    type: "Wholesale Buyer",
+    products: ["Fruits", "Vegetables", "Cereals"],
+    region: "Nationwide",
+    contact: "+254 700 123 456",
+    email: "procurement@twigafoods.com"
+  },
+  {
+    id: 2,
+    name: "Kenya Cereals Board",
+    type: "Government Agency",
+    products: ["Maize", "Rice", "Wheat"],
+    region: "Nationwide",
+    contact: "+254 700 789 123",
+    email: "procurement@cereals.go.ke"
+  },
+  {
+    id: 3,
+    name: "Nairobi Farmers Market",
+    type: "Retail Market",
+    products: ["All Farm Produce"],
+    region: "Nairobi",
+    contact: "+254 711 222 333",
+    email: "info@nairobifarmersmarket.co.ke"
+  },
+  {
+    id: 4,
+    name: "Brookside Dairy",
+    type: "Dairy Processor",
+    products: ["Milk", "Dairy Products"],
+    region: "Nationwide",
+    contact: "+254 722 444 555",
+    email: "farmers@brookside.co.ke"
+  }
+];
+
+const regions = ["All Regions", "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret", "Nationwide"];
 
 const Market = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("All");
-  const [selectedProduct, setSelectedProduct] = useState("Maize");
-  
-  const locations = ["All", "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Multiple Locations"];
-  const products = ["Maize", "Beans", "Potatoes", "Rice", "Wheat", "Milk"];
-  
+  const [selectedRegion, setSelectedRegion] = useState("All Regions");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const filteredPrices = marketPrices.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRegion = selectedRegion === "All Regions" || item.region === selectedRegion;
+    return matchesSearch && matchesRegion;
+  });
+
   const filteredBuyers = buyers.filter(buyer => {
-    const matchesSearch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = selectedLocation === "All" || buyer.location === selectedLocation;
-    
-    return matchesSearch && matchesLocation;
+    const matchesSearch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          buyer.products.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesRegion = selectedRegion === "All Regions" || buyer.region === selectedRegion;
+    return matchesSearch && matchesRegion;
   });
 
   return (
     <div className="page-container">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-farm-green-800 mb-2">Market Data & Pricing</h1>
+        <h1 className="text-3xl font-bold text-farm-green-800 mb-2">Market Information</h1>
         <p className="text-muted-foreground">
-          Stay updated with current market prices, find buyers, and make informed decisions for your farm business.
+          Access current market prices and find buyers for your agricultural products.
         </p>
       </div>
 
-      <div className="bg-farm-green-50 rounded-lg p-4 md:p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <BarChart3 className="mr-2 h-5 w-5 text-farm-green-700" /> Current Market Prices
-        </h2>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {currentPrices.map(item => (
-            <Card key={item.id}>
-              <CardContent className="p-3">
-                <div className="text-sm font-medium mb-1">{item.product}</div>
-                <div className="text-xl font-bold mb-1">{item.price} <span className="text-sm font-normal">{item.unit}</span></div>
-                <div className={`flex items-center text-sm ${
-                  item.trend === "up" ? "text-green-600" : 
-                  item.trend === "down" ? "text-red-600" : "text-gray-600"
-                }`}>
-                  {item.trend === "up" ? (
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                  ) : item.trend === "down" ? (
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                  ) : null}
-                  {item.change === 0 ? "Stable" : `${item.change > 0 ? "+" : ""}${item.change}`}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            className="pl-10"
+            placeholder="Search commodity or buyer..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
         </div>
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2 md:w-auto w-full"
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+        >
+          <Filter className="h-4 w-4" /> Filters
+        </Button>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Price Trends</h2>
-        
-        <div className="mb-4">
-          <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Select product" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {products.map(product => (
-                  <SelectItem key={product} value={product}>{product}</SelectItem>
+      {isFilterOpen && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-muted rounded-lg">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Region</label>
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {regions.map(region => (
+                    <SelectItem key={region} value={region}>{region}</SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-end">
+            <Button variant="secondary" className="w-full" onClick={() => {
+              setSearchTerm("");
+              setSelectedRegion("All Regions");
+            }}>
+              Reset Filters
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Tabs defaultValue="prices" className="mb-6">
+        <TabsList>
+          <TabsTrigger value="prices">Market Prices</TabsTrigger>
+          <TabsTrigger value="buyers">Buyers Directory</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="prices" className="mt-4">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="text-left p-3 border-b">Commodity</th>
+                  <th className="text-right p-3 border-b">Current Price (KES)</th>
+                  <th className="text-right p-3 border-b hidden md:table-cell">Last Week</th>
+                  <th className="text-right p-3 border-b hidden md:table-cell">Last Month</th>
+                  <th className="text-right p-3 border-b">Change</th>
+                  <th className="text-left p-3 border-b hidden md:table-cell">Region</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPrices.map(item => (
+                  <tr key={item.id} className="border-b hover:bg-muted/50">
+                    <td className="p-3">{item.name}</td>
+                    <td className="p-3 text-right font-medium">
+                      {item.price.toLocaleString()} KES
+                    </td>
+                    <td className="p-3 text-right hidden md:table-cell">
+                      {item.lastWeekPrice.toLocaleString()} KES
+                    </td>
+                    <td className="p-3 text-right hidden md:table-cell">
+                      {item.lastMonthPrice.toLocaleString()} KES
+                    </td>
+                    <td className={`p-3 text-right ${
+                      item.trend === 'up' ? 'text-green-600' : 
+                      item.trend === 'down' ? 'text-red-600' : 
+                      'text-amber-600'
+                    }`}>
+                      <div className="flex items-center justify-end gap-1">
+                        {item.trend === 'up' && <TrendingUp className="h-4 w-4" />}
+                        {item.trend === 'down' && <TrendingUp className="h-4 w-4 rotate-180" />}
+                        {item.trend === 'stable' && <Percent className="h-4 w-4" />}
+                        <span>{item.changePercent > 0 ? '+' : ''}{item.changePercent}%</span>
+                      </div>
+                    </td>
+                    <td className="p-3 hidden md:table-cell">{item.region}</td>
+                  </tr>
                 ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="h-[300px] border rounded-lg p-4">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={marketData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date"
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return `${date.getDate()}/${date.getMonth() + 1}`;
-                }}
-              />
-              <YAxis />
-              <Tooltip 
-                formatter={(value) => [`${value} KES/kg`, selectedProduct.toLowerCase()]}
-                labelFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString('en-UK');
-                }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey={selectedProduct.toLowerCase()} 
-                stroke="#5fa624" 
-                activeDot={{ r: 8 }}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Find Buyers & Markets</h2>
-        
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              className="pl-10"
-              placeholder="Search buyers by name..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+              </tbody>
+            </table>
           </div>
           
-          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Filter by location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {locations.map(location => (
-                  <SelectItem key={location} value={location}>{location}</SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+          {filteredPrices.length === 0 && (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">No price data found matching your search criteria.</p>
+            </div>
+          )}
+          
+          <div className="mt-4 text-xs text-muted-foreground">
+            <p className="flex items-center"><Calendar className="h-3 w-3 mr-1" /> Last updated: May 8, 2025</p>
+            <p>Prices may vary by location and quality of produce.</p>
+          </div>
+        </TabsContent>
 
-        <Tabs defaultValue="all">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="markets">Markets</TabsTrigger>
-            <TabsTrigger value="distributors">Distributors</TabsTrigger>
-            <TabsTrigger value="cooperatives">Cooperatives</TabsTrigger>
-          </TabsList>
+        <TabsContent value="buyers" className="mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredBuyers.map(buyer => (
+              <Card key={buyer.id}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl">{buyer.name}</CardTitle>
+                  <CardDescription>{buyer.type}</CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="space-y-2">
+                    <div>
+                      <div className="text-sm font-medium">Products:</div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {buyer.products.map((product, i) => (
+                          <Badge key={i} variant="secondary">{product}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <span>{buyer.region}</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex flex-col items-start pt-2">
+                  <Separator className="w-full mb-2" />
+                  <div className="text-sm">
+                    <div><span className="font-medium">Contact:</span> {buyer.contact}</div>
+                    <div><span className="font-medium">Email:</span> {buyer.email}</div>
+                  </div>
+                  <Button className="mt-3 w-full" size="sm">
+                    <ShoppingCart className="h-4 w-4 mr-2" /> Request Quote
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
           
-          <TabsContent value="all">
-            {filteredBuyers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBuyers.map(buyer => (
-                  <BuyerCard key={buyer.id} buyer={buyer} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground">No buyers found matching your search criteria.</p>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="markets">
-            {filteredBuyers.filter(b => b.type === "Market").length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBuyers.filter(b => b.type === "Market").map(buyer => (
-                  <BuyerCard key={buyer.id} buyer={buyer} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground">No markets found matching your search criteria.</p>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="distributors">
-            {filteredBuyers.filter(b => b.type === "Distributor").length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBuyers.filter(b => b.type === "Distributor").map(buyer => (
-                  <BuyerCard key={buyer.id} buyer={buyer} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground">No distributors found matching your search criteria.</p>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="cooperatives">
-            {filteredBuyers.filter(b => b.type === "Cooperative").length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBuyers.filter(b => b.type === "Cooperative").map(buyer => (
-                  <BuyerCard key={buyer.id} buyer={buyer} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground">No cooperatives found matching your search criteria.</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+          {filteredBuyers.length === 0 && (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">No buyers found matching your search criteria.</p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <div className="bg-muted p-4 rounded-lg">
+        <h2 className="text-xl font-semibold mb-2">Market Tip of the Day</h2>
+        <p>When selling bulk produce, contacting multiple buyers for quotes can help you negotiate better prices. Always check current market rates before agreeing to a sale.</p>
       </div>
     </div>
   );

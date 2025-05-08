@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Cube, Camera } from 'lucide-react';
+import { Box, Camera } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface ARViewerProps {
@@ -64,7 +64,7 @@ const ARViewer = ({ modelSrc, plantName }: ARViewerProps) => {
           <>Loading AR...</>
         ) : (
           <>
-            {isARSupported ? <Camera className="h-4 w-4" /> : <Cube className="h-4 w-4" />}
+            {isARSupported ? <Camera className="h-4 w-4" /> : <Box className="h-4 w-4" />}
             {isARSupported ? "View in AR" : "View 3D Model"}
           </>
         )}

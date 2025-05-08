@@ -1,15 +1,11 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { 
   Select,
   SelectContent,
   SelectGroup,
@@ -17,356 +13,118 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import {
-  BarChart3,
-  Calendar,
-  Crop,
-  Landmark,
-  LayoutDashboard,
-  MapPin,
-  Package,
-  Plus,
-  Tractor,
-  TrendingUp,
-  Bell,
-  AlertTriangle
-} from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { Calendar, Leaf, Users, MessageCircle, LineChart, ShoppingCart, PlusCircle, ArrowRight } from 'lucide-react';
 
-// Mock farm data
-const farms = [
-  { 
-    id: 1, 
-    name: "Main Farm", 
-    location: "Kiambu County", 
-    size: "5 acres",
-    crops: ["Maize", "Beans", "Kale"],
-    livestock: ["Dairy Cows", "Chickens"]
-  },
-  { 
-    id: 2, 
-    name: "River Plot", 
-    location: "Kiambu County", 
-    size: "2 acres",
-    crops: ["Tomatoes", "Onions"],
-    livestock: []
-  }
-];
-
-// Mock crops data
-const crops = [
-  { 
-    id: 1, 
-    name: "Maize", 
-    variety: "H614",
-    plantingDate: "2023-03-15", 
-    harvestDate: "2023-08-01",
-    field: "Field 1",
-    area: "2 acres",
-    status: "Growing",
-    progress: 65
-  },
-  { 
-    id: 2, 
-    name: "Beans", 
-    variety: "KK8",
-    plantingDate: "2023-03-20", 
-    harvestDate: "2023-06-15",
-    field: "Field 1",
-    area: "1 acre",
-    status: "Growing",
-    progress: 70
-  },
-  { 
-    id: 3, 
-    name: "Kale", 
-    variety: "Sukuma Wiki",
-    plantingDate: "2023-04-01", 
-    harvestDate: "Ongoing",
-    field: "Field 2",
-    area: "0.5 acres",
-    status: "Harvesting",
-    progress: 90
-  },
-  { 
-    id: 4, 
-    name: "Tomatoes", 
-    variety: "Roma",
-    plantingDate: "2023-04-10", 
-    harvestDate: "2023-07-15",
-    field: "River Plot - Section A",
-    area: "1 acre",
-    status: "Growing",
-    progress: 45
-  },
-];
-
-// Mock livestock data
-const livestock = [
-  {
-    id: 1,
-    type: "Dairy Cow",
-    name: "Cow 1",
-    breed: "Holstein",
-    age: "4 years",
-    status: "Lactating",
-    notes: "Producing 15L per day"
-  },
-  {
-    id: 2,
-    type: "Dairy Cow",
-    name: "Cow 2",
-    breed: "Jersey",
-    age: "3 years",
-    status: "Pregnant",
-    notes: "Due in 2 months"
-  },
-  {
-    id: 3,
-    type: "Chicken",
-    name: "Layer Batch 1",
-    breed: "ISA Brown",
-    age: "8 months",
-    status: "Laying",
-    notes: "180 birds, avg 160 eggs/day"
-  }
-];
+// Mock user data
+const user = {
+  name: "John Kamau",
+  farms: [
+    {
+      id: 1,
+      name: "Main Farm",
+      location: "Kiambu County",
+      size: "5 acres",
+      crops: [
+        { id: 1, name: "Maize", area: "2 acres", plantDate: "2025-03-15", harvestDate: "2025-08-30", status: "growing", progress: 40 },
+        { id: 2, name: "Beans", area: "1 acre", plantDate: "2025-04-01", harvestDate: "2025-06-15", status: "growing", progress: 65 }
+      ],
+      livestock: [
+        { id: 1, type: "Dairy Cows", count: 5, status: "healthy" },
+        { id: 2, type: "Goats", count: 8, status: "healthy" },
+        { id: 3, type: "Chickens", count: 25, status: "healthy" }
+      ]
+    },
+    {
+      id: 2,
+      name: "Secondary Plot",
+      location: "Kiambu County",
+      size: "1.5 acres",
+      crops: [
+        { id: 3, name: "Kale", area: "0.5 acres", plantDate: "2025-04-10", harvestDate: "2025-05-25", status: "growing", progress: 75 },
+        { id: 4, name: "Onions", area: "0.5 acres", plantDate: "2025-03-20", harvestDate: "2025-07-10", status: "growing", progress: 50 }
+      ],
+      livestock: []
+    }
+  ]
+};
 
 // Mock inventory data
 const inventory = [
-  {
-    id: 1,
-    name: "DAP Fertilizer",
-    category: "Input",
-    quantity: 5,
-    unit: "50kg bags",
-    lastUpdated: "2023-05-01",
-    reorderLevel: 2,
-    status: "Sufficient"
-  },
-  {
-    id: 2,
-    name: "Maize Seeds",
-    category: "Input",
-    quantity: 1,
-    unit: "10kg bags",
-    lastUpdated: "2023-05-01",
-    reorderLevel: 1,
-    status: "Low"
-  },
-  {
-    id: 3,
-    name: "Chicken Feed",
-    category: "Input",
-    quantity: 3,
-    unit: "70kg bags",
-    lastUpdated: "2023-05-05",
-    reorderLevel: 2,
-    status: "Sufficient"
-  },
-  {
-    id: 4,
-    name: "Maize",
-    category: "Produce",
-    quantity: 15,
-    unit: "90kg bags",
-    lastUpdated: "2023-05-01",
-    status: "In Stock"
-  },
-  {
-    id: 5,
-    name: "Tomatoes",
-    category: "Produce",
-    quantity: 80,
-    unit: "kg",
-    lastUpdated: "2023-05-07",
-    status: "In Stock"
-  }
+  { id: 1, name: "Maize Seeds (Hybrid)", quantity: 15, unit: "kg", status: "ok" },
+  { id: 2, name: "NPK Fertilizer", quantity: 2, unit: "bags", status: "low" },
+  { id: 3, name: "Pesticide", quantity: 5, unit: "liters", status: "ok" },
+  { id: 4, name: "Animal Feed", quantity: 3, unit: "bags", status: "low" },
+  { id: 5, name: "Fuel", quantity: 20, unit: "liters", status: "ok" }
 ];
 
-// Mock analytics data
-const yieldData = [
-  { month: "Jan", maize: 0, beans: 0, kale: 30 },
-  { month: "Feb", maize: 0, beans: 0, kale: 45 },
-  { month: "Mar", maize: 0, beans: 0, kale: 40 },
-  { month: "Apr", maize: 0, beans: 0, kale: 50 },
-  { month: "May", maize: 0, beans: 0, kale: 35 },
-  { month: "Jun", maize: 0, beans: 120, kale: 40 },
-  { month: "Jul", maize: 0, beans: 0, kale: 45 },
-  { month: "Aug", maize: 380, beans: 0, kale: 40 },
-  { month: "Sep", maize: 0, beans: 0, kale: 35 },
-  { month: "Oct", maize: 0, beans: 0, kale: 30 },
-  { month: "Nov", maize: 0, beans: 90, kale: 35 },
-  { month: "Dec", maize: 0, beans: 0, kale: 40 }
+// Mock upcoming events
+const events = [
+  { id: 1, title: "Fertilizer Application - Maize", date: "2025-05-10", farm: "Main Farm" },
+  { id: 2, title: "Vaccination - Cattle", date: "2025-05-15", farm: "Main Farm" },
+  { id: 3, title: "Harvest - Kale", date: "2025-05-25", farm: "Secondary Plot" }
 ];
 
-const incomeData = [
-  { month: "Jan", income: 12000, expenses: 5000 },
-  { month: "Feb", income: 15000, expenses: 6000 },
-  { month: "Mar", income: 18000, expenses: 8000 },
-  { month: "Apr", income: 16000, expenses: 7500 },
-  { month: "May", income: 21000, expenses: 9000 },
-  { month: "Jun", income: 25000, expenses: 10000 }
-];
-
-// Mock upcoming tasks
-const upcomingTasks = [
-  {
-    id: 1,
-    title: "Apply Fertilizer",
-    crop: "Maize",
-    date: "2023-05-15",
-    priority: "high"
-  },
-  {
-    id: 2,
-    title: "Vaccination",
-    crop: "Dairy Cows",
-    date: "2023-05-18",
-    priority: "high"
-  },
-  {
-    id: 3,
-    title: "Pesticide Application",
-    crop: "Tomatoes",
-    date: "2023-05-20",
-    priority: "medium"
-  },
-  {
-    id: 4,
-    title: "Harvest Kale",
-    crop: "Kale",
-    date: "2023-05-12",
-    priority: "medium"
-  }
+// Mock sales data
+const salesTransactions = [
+  { id: 1, item: "Milk", quantity: 120, unit: "liters", amount: 7200, date: "2025-05-07", status: "completed" },
+  { id: 2, item: "Eggs", quantity: 30, unit: "trays", amount: 9000, date: "2025-05-05", status: "completed" },
+  { id: 3, item: "Kale", quantity: 50, unit: "bundles", amount: 2500, date: "2025-05-02", status: "completed" }
 ];
 
 const Dashboard = () => {
-  const [selectedFarm, setSelectedFarm] = useState("all");
-  const [selectedTimeframe, setSelectedTimeframe] = useState("6months");
-  
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return <Badge variant="destructive">High</Badge>;
-      case "medium":
-        return <Badge variant="secondary">Medium</Badge>;
-      default:
-        return <Badge variant="outline">Low</Badge>;
-    }
-  };
-  
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Growing":
-        return <Badge className="bg-farm-green-600">Growing</Badge>;
-      case "Harvesting":
-        return <Badge className="bg-kenyan-gold-500 hover:bg-kenyan-gold-600">Harvesting</Badge>;
-      case "Completed":
-        return <Badge variant="outline">Completed</Badge>;
-      case "Low":
-        return <Badge variant="destructive">Low</Badge>;
-      case "Sufficient":
-        return <Badge className="bg-farm-green-600">Sufficient</Badge>;
-      case "In Stock":
-        return <Badge className="bg-kenyan-sky-500">In Stock</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
+  const [selectedFarm, setSelectedFarm] = useState(user.farms[0]);
 
+  // Calculate total stats
+  const totalCrops = user.farms.reduce((total, farm) => total + farm.crops.length, 0);
+  const totalLivestock = user.farms.reduce((total, farm) => total + farm.livestock.reduce((t, l) => t + l.count, 0), 0);
+  const totalFarmArea = user.farms.reduce((total, farm) => total + parseFloat(farm.size.split(' ')[0]), 0);
+  
+  // Calculate sales metrics
+  const totalSales = salesTransactions.reduce((total, sale) => total + sale.amount, 0);
+  
   return (
     <div className="page-container">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-farm-green-800">Farm Dashboard</h1>
-          <p className="text-muted-foreground">
-            Manage your farm activities, track crops, livestock, and monitor performance.
-          </p>
-        </div>
-        
-        <div className="mt-4 md:mt-0 flex items-center">
-          <Select value={selectedFarm} onValueChange={setSelectedFarm}>
-            <SelectTrigger className="w-[180px] mr-2">
-              <SelectValue placeholder="Select farm" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">All Farms</SelectItem>
-                {farms.map((farm) => (
-                  <SelectItem key={farm.id} value={farm.id.toString()}>
-                    {farm.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          
-          <Button>
-            <Plus className="h-4 w-4 mr-2" /> Add Farm
-          </Button>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-farm-green-800 mb-2">Farm Dashboard</h1>
+        <p className="text-muted-foreground">
+          Track and manage your farm activities, inventory, and sales.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Crop className="h-5 w-5 mr-2 text-farm-green-600" /> Crop Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{crops.length}</div>
-            <p className="text-muted-foreground">Active crops</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {Array.from(new Set(crops.map(crop => crop.name))).map((crop, index) => (
-                <Badge key={index} variant="outline">
-                  {crop}
-                </Badge>
-              ))}
-            </div>
+          <CardContent className="flex flex-col items-center p-6">
+            <Leaf className="h-8 w-8 text-farm-green-600 mb-2" />
+            <p className="text-sm text-muted-foreground">Total Crops</p>
+            <h3 className="text-2xl font-bold">{totalCrops}</h3>
+            <p className="text-xs text-muted-foreground mt-1">Across all farms</p>
           </CardContent>
         </Card>
-        
+
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Tractor className="h-5 w-5 mr-2 text-farm-green-600" /> Livestock Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{livestock.length}</div>
-            <p className="text-muted-foreground">Animals tracked</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {Array.from(new Set(livestock.map(animal => animal.type))).map((type, index) => (
-                <Badge key={index} variant="outline">
-                  {type}
-                </Badge>
-              ))}
-            </div>
+          <CardContent className="flex flex-col items-center p-6">
+            <Users className="h-8 w-8 text-farm-green-600 mb-2" />
+            <p className="text-sm text-muted-foreground">Total Livestock</p>
+            <h3 className="text-2xl font-bold">{totalLivestock}</h3>
+            <p className="text-xs text-muted-foreground mt-1">Heads across all farms</p>
           </CardContent>
         </Card>
-        
+
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Package className="h-5 w-5 mr-2 text-farm-green-600" /> Inventory Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{inventory.length}</div>
-            <p className="text-muted-foreground">Items in inventory</p>
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Inputs</span>
-                <Badge variant="outline">{inventory.filter(item => item.category === "Input").length}</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Produce</span>
-                <Badge variant="outline">{inventory.filter(item => item.category === "Produce").length}</Badge>
-              </div>
-            </div>
+          <CardContent className="flex flex-col items-center p-6">
+            <LineChart className="h-8 w-8 text-farm-green-600 mb-2" />
+            <p className="text-sm text-muted-foreground">Total Farm Area</p>
+            <h3 className="text-2xl font-bold">{totalFarmArea} acres</h3>
+            <p className="text-xs text-muted-foreground mt-1">Combined land area</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col items-center p-6">
+            <ShoppingCart className="h-8 w-8 text-farm-green-600 mb-2" />
+            <p className="text-sm text-muted-foreground">Recent Sales</p>
+            <h3 className="text-2xl font-bold">KES {totalSales.toLocaleString()}</h3>
+            <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
           </CardContent>
         </Card>
       </div>
@@ -374,59 +132,108 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2 text-farm-green-600" /> Farm Performance
-            </CardTitle>
-            <CardDescription>
-              Track yields, income, and expenses over time
-            </CardDescription>
-            <div className="flex gap-2 mt-2">
-              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Timeframe" />
+            <div className="flex items-center justify-between">
+              <CardTitle>Farm Management</CardTitle>
+              <Select
+                value={selectedFarm.id.toString()}
+                onValueChange={(value) => setSelectedFarm(user.farms.find(f => f.id.toString() === value) || user.farms[0])}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select farm" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="3months">3 Months</SelectItem>
-                    <SelectItem value="6months">6 Months</SelectItem>
-                    <SelectItem value="1year">1 Year</SelectItem>
+                    {user.farms.map(farm => (
+                      <SelectItem key={farm.id} value={farm.id.toString()}>
+                        {farm.name}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
+            <CardDescription>
+              {selectedFarm.location} | {selectedFarm.size}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="yield">
-              <TabsList>
-                <TabsTrigger value="yield">Yield</TabsTrigger>
-                <TabsTrigger value="financial">Financial</TabsTrigger>
+            <Tabs defaultValue="crops">
+              <TabsList className="mb-4">
+                <TabsTrigger value="crops">Crops</TabsTrigger>
+                <TabsTrigger value="livestock">Livestock</TabsTrigger>
               </TabsList>
-              <TabsContent value="yield" className="h-[300px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={yieldData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="maize" name="Maize (kg)" fill="#5fa624" />
-                    <Bar dataKey="beans" name="Beans (kg)" fill="#a68161" />
-                    <Bar dataKey="kale" name="Kale (kg)" fill="#1e99ef" />
-                  </BarChart>
-                </ResponsiveContainer>
+              
+              <TabsContent value="crops">
+                {selectedFarm.crops.length > 0 ? (
+                  <div className="space-y-4">
+                    {selectedFarm.crops.map(crop => (
+                      <div key={crop.id} className="bg-muted/50 p-4 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-medium">{crop.name}</h4>
+                            <p className="text-sm text-muted-foreground">{crop.area}</p>
+                          </div>
+                          <Badge variant={crop.status === "ready" ? "default" : "outline"}>
+                            {crop.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span>Progress</span>
+                            <span>{crop.progress}%</span>
+                          </div>
+                          <Progress value={crop.progress} className="h-2" />
+                        </div>
+                        
+                        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                          <div>Planted: {new Date(crop.plantDate).toLocaleDateString()}</div>
+                          <div>Expected harvest: {new Date(crop.harvestDate).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <Button variant="outline" className="w-full">
+                      <PlusCircle className="h-4 w-4 mr-2" /> Add New Crop
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-muted-foreground mb-4">No crops recorded for this farm yet.</p>
+                    <Button>
+                      <PlusCircle className="h-4 w-4 mr-2" /> Add First Crop
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
-              <TabsContent value="financial" className="h-[300px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={incomeData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value} KES`]} />
-                    <Legend />
-                    <Line type="monotone" dataKey="income" name="Income (KES)" stroke="#5fa624" strokeWidth={2} />
-                    <Line type="monotone" dataKey="expenses" name="Expenses (KES)" stroke="#ef4444" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
+              
+              <TabsContent value="livestock">
+                {selectedFarm.livestock.length > 0 ? (
+                  <div className="space-y-4">
+                    {selectedFarm.livestock.map(animal => (
+                      <div key={animal.id} className="bg-muted/50 p-4 rounded-lg flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium">{animal.type}</h4>
+                          <p className="text-sm text-muted-foreground">Count: {animal.count}</p>
+                        </div>
+                        <Badge variant={animal.status === "healthy" ? "default" : "destructive"}>
+                          {animal.status}
+                        </Badge>
+                      </div>
+                    ))}
+                    
+                    <Button variant="outline" className="w-full">
+                      <PlusCircle className="h-4 w-4 mr-2" /> Add Livestock
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-muted-foreground mb-4">No livestock recorded for this farm yet.</p>
+                    <Button>
+                      <PlusCircle className="h-4 w-4 mr-2" /> Add Livestock
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -434,265 +241,124 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Bell className="h-5 w-5 mr-2 text-farm-green-600" /> Upcoming Tasks
-            </CardTitle>
-            <CardDescription>
-              Tasks and activities requiring attention
-            </CardDescription>
+            <CardTitle>Upcoming Tasks</CardTitle>
+            <CardDescription>Next 30 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingTasks.map((task) => (
-                <div key={task.id} className="flex items-start justify-between pb-3 border-b last:border-b-0">
-                  <div>
-                    <div className="font-medium mb-1">{task.title}</div>
-                    <div className="text-sm text-muted-foreground mb-1">
-                      {task.crop}
+            {events.length > 0 ? (
+              <div className="space-y-4">
+                {events.map(event => (
+                  <div key={event.id} className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <Calendar className="h-5 w-5 text-farm-green-600" />
                     </div>
-                    <div className="text-xs flex items-center text-muted-foreground">
-                      <Calendar className="h-3 w-3 mr-1" /> {new Date(task.date).toLocaleDateString()}
+                    <div>
+                      <h4 className="font-medium">{event.title}</h4>
+                      <div className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString()}</div>
+                      <div className="text-xs text-muted-foreground">{event.farm}</div>
                     </div>
                   </div>
-                  {getPriorityBadge(task.priority)}
-                </div>
-              ))}
-            </div>
-            <Button variant="outline" className="w-full mt-4">
-              View All Tasks
-            </Button>
+                ))}
+                
+                <Button variant="ghost" className="w-full text-farm-green-600">
+                  View All Tasks <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground mb-4">No upcoming tasks.</p>
+                <Button>
+                  <PlusCircle className="h-4 w-4 mr-2" /> Schedule Task
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <div className="mb-6">
-        <Tabs defaultValue="crops">
-          <TabsList>
-            <TabsTrigger value="crops" className="flex items-center">
-              <Crop className="h-4 w-4 mr-2" /> Crops
-            </TabsTrigger>
-            <TabsTrigger value="livestock" className="flex items-center">
-              <Tractor className="h-4 w-4 mr-2" /> Livestock
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="flex items-center">
-              <Package className="h-4 w-4 mr-2" /> Inventory
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="crops" className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Active Crops</h3>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" /> Add Crop
-              </Button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left font-medium p-2 pl-0">Crop</th>
-                    <th className="text-left font-medium p-2">Variety</th>
-                    <th className="text-left font-medium p-2">Field</th>
-                    <th className="text-left font-medium p-2">Area</th>
-                    <th className="text-left font-medium p-2">Planting Date</th>
-                    <th className="text-left font-medium p-2">Status</th>
-                    <th className="text-left font-medium p-2">Progress</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {crops.map((crop) => (
-                    <tr key={crop.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2 pl-0">
-                        <div className="font-medium">{crop.name}</div>
-                      </td>
-                      <td className="p-2">{crop.variety}</td>
-                      <td className="p-2">{crop.field}</td>
-                      <td className="p-2">{crop.area}</td>
-                      <td className="p-2">{new Date(crop.plantingDate).toLocaleDateString()}</td>
-                      <td className="p-2">{getStatusBadge(crop.status)}</td>
-                      <td className="p-2">
-                        <div className="flex items-center">
-                          <div className="w-full bg-muted rounded-full h-2 mr-2">
-                            <div 
-                              className="bg-farm-green-600 h-2 rounded-full" 
-                              style={{ width: `${crop.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-xs">{crop.progress}%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="livestock" className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Livestock</h3>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" /> Add Animal
-              </Button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left font-medium p-2 pl-0">Type</th>
-                    <th className="text-left font-medium p-2">Name/ID</th>
-                    <th className="text-left font-medium p-2">Breed</th>
-                    <th className="text-left font-medium p-2">Age</th>
-                    <th className="text-left font-medium p-2">Status</th>
-                    <th className="text-left font-medium p-2">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {livestock.map((animal) => (
-                    <tr key={animal.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2 pl-0">
-                        <div className="font-medium">{animal.type}</div>
-                      </td>
-                      <td className="p-2">{animal.name}</td>
-                      <td className="p-2">{animal.breed}</td>
-                      <td className="p-2">{animal.age}</td>
-                      <td className="p-2">{getStatusBadge(animal.status)}</td>
-                      <td className="p-2">{animal.notes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="inventory" className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Inventory</h3>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" /> Add Item
-              </Button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left font-medium p-2 pl-0">Item</th>
-                    <th className="text-left font-medium p-2">Category</th>
-                    <th className="text-left font-medium p-2">Quantity</th>
-                    <th className="text-left font-medium p-2">Unit</th>
-                    <th className="text-left font-medium p-2">Last Updated</th>
-                    <th className="text-left font-medium p-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventory.map((item) => (
-                    <tr key={item.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2 pl-0">
-                        <div className="font-medium">{item.name}</div>
-                      </td>
-                      <td className="p-2">{item.category}</td>
-                      <td className="p-2">{item.quantity}</td>
-                      <td className="p-2">{item.unit}</td>
-                      <td className="p-2">{new Date(item.lastUpdated).toLocaleDateString()}</td>
-                      <td className="p-2">
-                        <div className="flex items-center">
-                          {getStatusBadge(item.status)}
-                          {item.status === "Low" && (
-                            <AlertTriangle className="h-4 w-4 text-destructive ml-2" />
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <MapPin className="h-5 w-5 mr-2 text-farm-green-600" /> Farm Properties
-            </CardTitle>
-            <CardDescription>
-              Manage your farmland properties
-            </CardDescription>
+            <CardTitle>Inventory Status</CardTitle>
+            <CardDescription>Farm inputs and supplies</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {farms.map((farm) => (
-                <div key={farm.id} className="border rounded-lg p-4 hover:bg-muted/50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-base mb-1">{farm.name}</h4>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {farm.location} • {farm.size}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {farm.crops.map((crop, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {crop}
-                          </Badge>
-                        ))}
-                        
-                        {farm.livestock.map((animal, index) => (
-                          <Badge key={`animal-${index}`} variant="outline" className="text-xs">
-                            {animal}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
+              {inventory.map(item => (
+                <div key={item.id} className="flex justify-between items-center bg-muted/50 p-3 rounded-md">
+                  <div>
+                    <h4 className="font-medium">{item.name}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {item.quantity} {item.unit}
+                    </p>
                   </div>
+                  <Badge variant={item.status === "ok" ? "outline" : "destructive"}>
+                    {item.status === "low" ? "Low Stock" : "In Stock"}
+                  </Badge>
                 </div>
               ))}
+              
+              <Button variant="outline" className="w-full">
+                <PlusCircle className="h-4 w-4 mr-2" /> Add Inventory Item
+              </Button>
             </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Landmark className="h-5 w-5 mr-2 text-farm-green-600" /> Financial Summary
-            </CardTitle>
-            <CardDescription>
-              Recent income and expenses
-            </CardDescription>
+            <CardTitle>Recent Sales</CardTitle>
+            <CardDescription>Last 7 days</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-muted-foreground">Total Income (This Month)</div>
-                  <div className="text-2xl font-bold mt-1">21,000 KES</div>
+              {salesTransactions.map(sale => (
+                <div key={sale.id} className="flex justify-between items-center bg-muted/50 p-3 rounded-md">
+                  <div>
+                    <h4 className="font-medium">{sale.item}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {sale.quantity} {sale.unit} | KES {sale.amount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(sale.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    Completed
+                  </Badge>
                 </div>
-                
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-muted-foreground">Total Expenses (This Month)</div>
-                  <div className="text-2xl font-bold mt-1">9,000 KES</div>
-                </div>
-              </div>
+              ))}
               
-              <div className="border rounded-lg p-4">
-                <div className="text-sm text-muted-foreground">Projected Profit (This Month)</div>
-                <div className="text-2xl font-bold text-farm-green-700 mt-1">12,000 KES</div>
-                <div className="text-xs text-muted-foreground flex items-center mt-1">
-                  <TrendingUp className="h-3 w-3 mr-1" /> 15% increase from last month
-                </div>
-              </div>
-              
-              <Button className="w-full">
-                <LayoutDashboard className="h-4 w-4 mr-2" /> View Financial Reports
+              <Button variant="outline" className="w-full">
+                <PlusCircle className="h-4 w-4 mr-2" /> Record New Sale
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Button variant="outline" className="flex flex-col h-24 gap-2">
+                <PlusCircle className="h-6 w-6" />
+                <span>Add Crop</span>
+              </Button>
+              <Button variant="outline" className="flex flex-col h-24 gap-2">
+                <PlusCircle className="h-6 w-6" />
+                <span>Add Livestock</span>
+              </Button>
+              <Button variant="outline" className="flex flex-col h-24 gap-2">
+                <MessageCircle className="h-6 w-6" />
+                <span>Contact Expert</span>
+              </Button>
+              <Button variant="outline" className="flex flex-col h-24 gap-2">
+                <ShoppingCart className="h-6 w-6" />
+                <span>Record Sale</span>
               </Button>
             </div>
           </CardContent>

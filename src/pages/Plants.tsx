@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, ArrowRight, Cube } from "lucide-react";
+import { Search, Filter, ArrowRight, Box } from "lucide-react";
 
 // Mock data for plants
 const plants = [
@@ -112,7 +112,7 @@ const PlantCard = ({ plant }: { plant: typeof plants[0] }) => {
           <h3 className="font-semibold text-lg">{plant.name}</h3>
           {plant.hasArModel && (
             <Badge variant="outline" className="flex items-center gap-1">
-              <Cube className="h-3 w-3" />
+              <Box className="h-3 w-3" />
               AR
             </Badge>
           )}
