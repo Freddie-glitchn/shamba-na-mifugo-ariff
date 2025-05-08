@@ -20,8 +20,17 @@ import NotFound from "./pages/NotFound";
 import FarmManagement from "./pages/FarmManagement";
 import FarmNotes from "./pages/FarmNotes";
 import Inventory from "./pages/Inventory";
+import Settings from "./pages/Settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
@@ -81,6 +90,16 @@ const AppRoutes = () => {
           <MainLayout>
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Inventory />
+            </ProtectedRoute>
+          </MainLayout>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <MainLayout>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Settings />
             </ProtectedRoute>
           </MainLayout>
         } 
