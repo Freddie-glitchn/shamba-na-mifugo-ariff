@@ -1,10 +1,12 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Leaf, MessageCircle, BarChart3, Users } from 'lucide-react';
+import { Home, Leaf, MessageCircle, BarChart3, Users, ShoppingCart, Cloud } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MobileNav = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   
   const navItems = [
     {
@@ -18,25 +20,25 @@ const MobileNav = () => {
       href: "/plants"
     },
     {
-      label: "Community",
-      icon: Users,
-      href: "/social"
+      label: "Market",
+      icon: ShoppingCart,
+      href: "/market"
     },
     {
-      label: "Messages",
-      icon: MessageCircle,
-      href: "/messages"
+      label: "Weather",
+      icon: Cloud,
+      href: "/weather"
     },
     {
-      label: "Dashboard",
-      icon: BarChart3,
-      href: "/dashboard"
+      label: isAuthenticated ? "Dashboard" : "Community",
+      icon: isAuthenticated ? BarChart3 : Users,
+      href: isAuthenticated ? "/dashboard" : "/social"
     }
   ];
   
   return (
     <div className="fixed bottom-0 left-0 z-40 w-full h-16 bg-background border-t border-border md:hidden">
-      <div className="grid h-full grid-cols-5">
+      <div className="grid h-full" style={{ gridTemplateColumns: `repeat(${navItems.length}, 1fr)` }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
           return (

@@ -1,433 +1,307 @@
 
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { 
-  CloudSun, 
-  CloudRain, 
-  Droplets, 
-  Wind, 
-  Thermometer, 
-  Calendar, 
-  CloudLightning, 
-  Sun, 
-  Cloud 
-} from "lucide-react";
+  Cloud, CloudRain, Droplets, Sun, Wind, Thermometer, 
+  CloudLightning, Umbrella, Calendar, MapPin, AlertTriangle 
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock weather data
-const regions = [
-  "Nairobi",
-  "Mombasa",
-  "Kisumu",
-  "Nakuru",
-  "Eldoret",
-  "Nyeri",
-  "Machakos"
-];
-
-const currentWeather = {
-  Nairobi: {
-    temperature: 22,
-    condition: "Partly Cloudy",
-    icon: CloudSun,
+const weatherData = {
+  current: {
+    location: "Nairobi, Kenya",
+    date: "Thu, 8 May 2025",
+    temperature: 23,
     humidity: 65,
+    description: "Partly Cloudy",
     windSpeed: 12,
-    rainfall: 0,
-    alerts: []
+    rainChance: 20,
+    uv: 6,
+    icon: "cloud",
   },
-  Mombasa: {
-    temperature: 29,
-    condition: "Sunny",
-    icon: Sun,
-    humidity: 78,
-    windSpeed: 15,
-    rainfall: 0,
-    alerts: []
-  },
-  Kisumu: {
-    temperature: 27,
-    condition: "Cloudy",
-    icon: Cloud,
-    humidity: 70,
-    windSpeed: 8,
-    rainfall: 20,
-    alerts: [{ type: "rain", message: "Moderate rainfall expected" }]
-  },
-  Nakuru: {
-    temperature: 20,
-    condition: "Light Rain",
-    icon: CloudRain,
-    humidity: 75,
-    windSpeed: 10,
-    rainfall: 15,
-    alerts: [{ type: "rain", message: "Light rainfall expected" }]
-  },
-  Eldoret: {
-    temperature: 19,
-    condition: "Thunderstorm",
-    icon: CloudLightning,
-    humidity: 80,
-    windSpeed: 18,
-    rainfall: 35,
-    alerts: [
-      { type: "severe", message: "Thunderstorms with possible flooding" },
-      { type: "wind", message: "Strong winds up to 18 km/h" }
+  forecast: [
+    { day: "Today", temp: 23, icon: "cloud", description: "Partly Cloudy", rainChance: 20 },
+    { day: "Fri", temp: 25, icon: "sun", description: "Sunny", rainChance: 0 },
+    { day: "Sat", temp: 24, icon: "cloud-sun", description: "Mostly Sunny", rainChance: 10 },
+    { day: "Sun", temp: 22, icon: "cloud-rain", description: "Light Rain", rainChance: 60 },
+    { day: "Mon", temp: 21, icon: "cloud-rain", description: "Scattered Showers", rainChance: 70 },
+    { day: "Tue", temp: 20, icon: "cloud", description: "Overcast", rainChance: 30 },
+    { day: "Wed", temp: 22, icon: "sun", description: "Sunny", rainChance: 0 },
+  ],
+  farmingAdvice: {
+    general: "Current conditions are suitable for outdoor farm activities. Light rain expected on Sunday may help with irrigation needs.",
+    crops: [
+      { name: "Maize", advice: "Good conditions for growth. Consider scheduling fertilizer application before Friday for best results." },
+      { name: "Beans", advice: "Ideal planting conditions. Expected rainfall on Sunday will support germination." },
+      { name: "Tomatoes", advice: "Maintain regular watering schedule. Watch for increased humidity which may contribute to fungal diseases." }
+    ],
+    warnings: [
+      { level: "moderate", message: "Potential for heavy rainfall on Sunday evening through Monday morning." },
     ]
-  },
-  Nyeri: {
-    temperature: 21,
-    condition: "Cloudy",
-    icon: Cloud,
-    humidity: 60,
-    windSpeed: 5,
-    rainfall: 0,
-    alerts: []
-  },
-  Machakos: {
-    temperature: 24,
-    condition: "Sunny",
-    icon: Sun,
-    humidity: 55,
-    windSpeed: 7,
-    rainfall: 0,
-    alerts: []
   }
 };
 
-const forecast = {
-  Nairobi: [
-    { day: "Today", temp: 22, condition: "Partly Cloudy", icon: CloudSun, rainfall: 0 },
-    { day: "Tomorrow", temp: 23, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Wed", temp: 22, condition: "Partly Cloudy", icon: CloudSun, rainfall: 0 },
-    { day: "Thu", temp: 21, condition: "Light Rain", icon: CloudRain, rainfall: 10 },
-    { day: "Fri", temp: 20, condition: "Rain", icon: CloudRain, rainfall: 25 },
-    { day: "Sat", temp: 21, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sun", temp: 22, condition: "Sunny", icon: Sun, rainfall: 0 },
-  ],
-  Mombasa: [
-    { day: "Today", temp: 29, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Tomorrow", temp: 30, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Wed", temp: 30, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Thu", temp: 29, condition: "Partly Cloudy", icon: CloudSun, rainfall: 0 },
-    { day: "Fri", temp: 29, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sat", temp: 28, condition: "Light Rain", icon: CloudRain, rainfall: 15 },
-    { day: "Sun", temp: 28, condition: "Light Rain", icon: CloudRain, rainfall: 20 },
-  ],
-  Kisumu: [
-    { day: "Today", temp: 27, condition: "Cloudy", icon: Cloud, rainfall: 20 },
-    { day: "Tomorrow", temp: 26, condition: "Light Rain", icon: CloudRain, rainfall: 30 },
-    { day: "Wed", temp: 25, condition: "Rain", icon: CloudRain, rainfall: 40 },
-    { day: "Thu", temp: 25, condition: "Light Rain", icon: CloudRain, rainfall: 25 },
-    { day: "Fri", temp: 26, condition: "Partly Cloudy", icon: CloudSun, rainfall: 10 },
-    { day: "Sat", temp: 27, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sun", temp: 28, condition: "Sunny", icon: Sun, rainfall: 0 },
-  ],
-  Nakuru: [
-    { day: "Today", temp: 20, condition: "Light Rain", icon: CloudRain, rainfall: 15 },
-    { day: "Tomorrow", temp: 19, condition: "Rain", icon: CloudRain, rainfall: 30 },
-    { day: "Wed", temp: 18, condition: "Heavy Rain", icon: CloudRain, rainfall: 45 },
-    { day: "Thu", temp: 19, condition: "Light Rain", icon: CloudRain, rainfall: 20 },
-    { day: "Fri", temp: 20, condition: "Partly Cloudy", icon: CloudSun, rainfall: 10 },
-    { day: "Sat", temp: 21, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sun", temp: 21, condition: "Cloudy", icon: Cloud, rainfall: 10 },
-  ],
-  Eldoret: [
-    { day: "Today", temp: 19, condition: "Thunderstorm", icon: CloudLightning, rainfall: 35 },
-    { day: "Tomorrow", temp: 18, condition: "Heavy Rain", icon: CloudRain, rainfall: 40 },
-    { day: "Wed", temp: 18, condition: "Rain", icon: CloudRain, rainfall: 30 },
-    { day: "Thu", temp: 19, condition: "Light Rain", icon: CloudRain, rainfall: 20 },
-    { day: "Fri", temp: 20, condition: "Cloudy", icon: Cloud, rainfall: 10 },
-    { day: "Sat", temp: 20, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sun", temp: 19, condition: "Cloudy", icon: Cloud, rainfall: 15 },
-  ],
-  Nyeri: [
-    { day: "Today", temp: 21, condition: "Cloudy", icon: Cloud, rainfall: 0 },
-    { day: "Tomorrow", temp: 22, condition: "Partly Cloudy", icon: CloudSun, rainfall: 0 },
-    { day: "Wed", temp: 22, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Thu", temp: 21, condition: "Light Rain", icon: CloudRain, rainfall: 15 },
-    { day: "Fri", temp: 20, condition: "Light Rain", icon: CloudRain, rainfall: 20 },
-    { day: "Sat", temp: 21, condition: "Cloudy", icon: Cloud, rainfall: 10 },
-    { day: "Sun", temp: 22, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-  ],
-  Machakos: [
-    { day: "Today", temp: 24, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Tomorrow", temp: 25, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Wed", temp: 25, condition: "Sunny", icon: Sun, rainfall: 0 },
-    { day: "Thu", temp: 24, condition: "Partly Cloudy", icon: CloudSun, rainfall: 0 },
-    { day: "Fri", temp: 23, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-    { day: "Sat", temp: 22, condition: "Cloudy", icon: Cloud, rainfall: 10 },
-    { day: "Sun", temp: 23, condition: "Partly Cloudy", icon: CloudSun, rainfall: 5 },
-  ]
-};
-
-const farmingTips = [
-  {
-    condition: "Sunny",
-    tips: [
-      "Consider providing shade for sensitive crops",
-      "Increase watering frequency to prevent wilting",
-      "Early morning or evening is best for any field work",
-      "Monitor soil moisture levels to prevent drying"
-    ]
-  },
-  {
-    condition: "Rainy",
-    tips: [
-      "Ensure proper drainage to prevent waterlogging",
-      "Delay pesticide or fertilizer application",
-      "Monitor for signs of diseases that thrive in wet conditions",
-      "Protect harvested crops from moisture"
-    ]
-  },
-  {
-    condition: "Cloudy",
-    tips: [
-      "Good conditions for transplanting seedlings",
-      "Reduced evaporation means less watering needed",
-      "Suitable time for applying foliar sprays",
-      "Good day for field work that would be difficult in heat"
-    ]
-  },
-  {
-    condition: "Thunderstorm",
-    tips: [
-      "Secure livestock in sheltered areas",
-      "Ensure farm equipment is protected",
-      "Stay indoors during lightning",
-      "Check for crop damage after the storm passes"
-    ]
-  }
+const locations = [
+  { name: "Nairobi", county: "Nairobi" },
+  { name: "Mombasa", county: "Mombasa" },
+  { name: "Kisumu", county: "Kisumu" },
+  { name: "Nakuru", county: "Nakuru" },
+  { name: "Eldoret", county: "Uasin Gishu" },
+  { name: "Thika", county: "Kiambu" },
+  { name: "Nyeri", county: "Nyeri" },
+  { name: "Machakos", county: "Machakos" },
 ];
 
-// Helper function to get tips based on weather condition
-const getTipsForCondition = (condition: string) => {
-  const lowerCondition = condition.toLowerCase();
-  if (lowerCondition.includes("rain") || lowerCondition.includes("thunderstorm")) {
-    return farmingTips.find(tip => tip.condition === "Rainy")?.tips || [];
-  } else if (lowerCondition.includes("sunny")) {
-    return farmingTips.find(tip => tip.condition === "Sunny")?.tips || [];
-  } else if (lowerCondition.includes("cloud")) {
-    return farmingTips.find(tip => tip.condition === "Cloudy")?.tips || [];
-  } else if (lowerCondition.includes("thunderstorm")) {
-    return farmingTips.find(tip => tip.condition === "Thunderstorm")?.tips || [];
+type WeatherIcon = "sun" | "cloud" | "cloud-sun" | "cloud-rain" | "cloud-lightning";
+
+const WeatherIcon = ({ icon, size = 24 }: { icon: WeatherIcon, size?: number }) => {
+  switch (icon) {
+    case "sun":
+      return <Sun size={size} className="text-yellow-500" />;
+    case "cloud":
+      return <Cloud size={size} className="text-gray-500" />;
+    case "cloud-sun":
+      return <Sun size={size} className="text-yellow-500" />;
+    case "cloud-rain":
+      return <CloudRain size={size} className="text-blue-500" />;
+    case "cloud-lightning":
+      return <CloudLightning size={size} className="text-purple-500" />;
+    default:
+      return <Cloud size={size} className="text-gray-500" />;
   }
-  return farmingTips.find(tip => tip.condition === "Cloudy")?.tips || [];
 };
 
 const Weather = () => {
-  const [selectedRegion, setSelectedRegion] = useState("Nairobi");
-  const weather = currentWeather[selectedRegion as keyof typeof currentWeather];
-  const forecastData = forecast[selectedRegion as keyof typeof forecast];
-  const tips = getTipsForCondition(weather.condition);
-  
-  const getAlertVariant = (type: string) => {
-    switch (type) {
-      case "severe":
-        return "destructive";
-      case "rain":
-        return "default";
-      case "wind":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
+  const [selectedLocation, setSelectedLocation] = useState("Nairobi");
+  const [userLocation, setUserLocation] = useState("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Simulate geolocation
+    setTimeout(() => {
+      setUserLocation("Nairobi, Kenya");
+      toast({
+        title: "Location detected",
+        description: "Using your current location: Nairobi, Kenya",
+      });
+    }, 1500);
+  }, [toast]);
 
   return (
     <div className="page-container">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-farm-green-800 mb-2">Weather Information</h1>
+        <h1 className="text-3xl font-bold text-farm-green-800 mb-2">Weather & Climate Information</h1>
         <p className="text-muted-foreground">
-          Get up-to-date weather data and forecasts to plan your farming activities effectively.
+          Access real-time weather data, forecasts, and agricultural weather advisories.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6 items-start">
-        <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Select region" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {regions.map(region => (
-                <SelectItem key={region} value={region}>{region}</SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        
-        <Button variant="outline" className="w-full md:w-auto">
-          <Calendar className="mr-2 h-4 w-4" /> Crop Calendar
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl flex items-center">
-              Current Weather in {selectedRegion}
-            </CardTitle>
-            <CardDescription>Last updated: Today, 8:00 AM</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between">
-              <div className="flex flex-col items-center mb-4 md:mb-0">
-                <weather.icon className="h-16 w-16 text-kenyan-sky-500 mb-2" />
-                <h3 className="text-4xl font-bold mb-1">{weather.temperature}°C</h3>
-                <p className="text-muted-foreground">{weather.condition}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <Card className="overflow-hidden h-full">
+            <CardHeader className="bg-gradient-to-r from-farm-green-600/90 to-farm-green-700/90 text-white pb-12">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-2xl font-bold flex items-center">
+                    <MapPin className="mr-2 h-5 w-5" />
+                    {weatherData.current.location}
+                  </CardTitle>
+                  <CardDescription className="text-white/90 text-base mt-1">
+                    {weatherData.current.date}
+                  </CardDescription>
+                </div>
+                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <SelectTrigger className="w-[180px] bg-white/20 border-white/20 text-white">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.name} value={loc.name}>
+                        {loc.name}, {loc.county}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4">
-                <div className="flex flex-col items-center">
-                  <Droplets className="h-5 w-5 text-kenyan-sky-500 mb-1" />
-                  <p className="text-sm text-muted-foreground">Humidity</p>
-                  <p className="font-semibold">{weather.humidity}%</p>
+            </CardHeader>
+            
+            <div className="relative -mt-10">
+              <div className="flex items-center justify-between p-6 bg-white rounded-t-xl mx-4 shadow-lg">
+                <div className="flex items-center gap-4">
+                  <WeatherIcon icon={weatherData.current.icon as WeatherIcon} size={64} />
+                  <div>
+                    <div className="text-4xl font-bold">{weatherData.current.temperature}°C</div>
+                    <div className="text-muted-foreground">{weatherData.current.description}</div>
+                  </div>
                 </div>
-                
-                <div className="flex flex-col items-center">
-                  <Wind className="h-5 w-5 text-kenyan-sky-500 mb-1" />
-                  <p className="text-sm text-muted-foreground">Wind</p>
-                  <p className="font-semibold">{weather.windSpeed} km/h</p>
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <CloudRain className="h-5 w-5 text-kenyan-sky-500 mb-1" />
-                  <p className="text-sm text-muted-foreground">Rainfall</p>
-                  <p className="font-semibold">{weather.rainfall} mm</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <div className="flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-blue-500" />
+                    <span>Humidity: {weatherData.current.humidity}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Wind className="h-5 w-5 text-gray-500" />
+                    <span>Wind: {weatherData.current.windSpeed} km/h</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Umbrella className="h-5 w-5 text-blue-400" />
+                    <span>Rain: {weatherData.current.rainChance}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Sun className="h-5 w-5 text-orange-400" />
+                    <span>UV Index: {weatherData.current.uv} (High)</span>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            {weather.alerts.length > 0 && (
-              <div className="mt-6 border-t pt-4">
-                <h4 className="text-sm font-semibold mb-2">Weather Alerts:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {weather.alerts.map((alert, index) => (
-                    <Badge key={index} variant={getAlertVariant(alert.type)} className="py-1 px-3">
-                      {alert.message}
-                    </Badge>
+
+            <CardContent className="pt-4 pb-0">
+              <h3 className="text-lg font-semibold mb-4">7-Day Forecast</h3>
+              <div className="grid grid-cols-7 gap-2">
+                {weatherData.forecast.map((day, index) => (
+                  <div key={index} className="flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors">
+                    <span className="font-medium text-sm">{day.day}</span>
+                    <WeatherIcon icon={day.icon as WeatherIcon} size={28} />
+                    <span className="font-bold mt-1">{day.temp}°</span>
+                    <span className="text-xs text-muted-foreground">{day.rainChance}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-between pt-4">
+              <div className="text-xs text-muted-foreground">
+                <Calendar className="inline mr-1 h-3 w-3" /> Last updated: 10:30 AM
+              </div>
+              <Button variant="ghost" size="sm">View Full Forecast</Button>
+            </CardFooter>
+          </Card>
+        </div>
+
+        <div>
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <AlertTriangle className="mr-2 h-5 w-5 text-amber-500" />
+                Weather Alerts & Advisories
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {weatherData.farmingAdvice.warnings.map((warning, index) => (
+                <div 
+                  key={index} 
+                  className={`p-3 rounded-md ${
+                    warning.level === 'high' 
+                      ? 'bg-red-100 border-l-4 border-red-500' 
+                      : warning.level === 'moderate'
+                        ? 'bg-amber-100 border-l-4 border-amber-500'
+                        : 'bg-blue-100 border-l-4 border-blue-500'
+                  }`}
+                >
+                  <p className="text-sm">
+                    {warning.message}
+                  </p>
+                </div>
+              ))}
+
+              <div className="p-4 bg-muted rounded-md">
+                <h4 className="font-medium mb-2">General Farming Advice</h4>
+                <p className="text-sm text-muted-foreground">
+                  {weatherData.farmingAdvice.general}
+                </p>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <h4 className="font-medium mb-2">Crop-Specific Advice</h4>
+                <div className="space-y-3">
+                  {weatherData.farmingAdvice.crops.map((crop, index) => (
+                    <div key={index} className="text-sm">
+                      <span className="font-medium">{crop.name}: </span>
+                      <span className="text-muted-foreground">{crop.advice}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Farming Tips</CardTitle>
-            <CardDescription>Based on current weather</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {tips.map((tip, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="bg-farm-green-100 text-farm-green-800 rounded-full h-5 w-5 flex items-center justify-center text-xs mr-2 mt-0.5">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm">{tip}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full">Set Weather Alerts</Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">7-Day Forecast</h2>
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {forecastData.map((day, index) => (
-            <Card key={index} className={`${index === 0 ? 'bg-accent/50' : ''}`}>
-              <CardContent className="p-4 text-center">
-                <p className="font-semibold mb-2">{day.day}</p>
-                <day.icon className="h-8 w-8 mx-auto mb-2 text-kenyan-sky-500" />
-                <p className="text-lg font-semibold mb-1">{day.temp}°C</p>
-                <p className="text-xs text-muted-foreground mb-2">{day.condition}</p>
-                <div className="flex flex-col items-center">
-                  <p className="text-xs text-muted-foreground">Rainfall</p>
-                  <div className="w-full mt-1">
-                    <Progress value={day.rainfall * 2} max={100} className="h-1" />
-                  </div>
-                  <p className="text-xs mt-1">{day.rainfall} mm</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-      
-      <div className="mb-8">
-        <Tabs defaultValue="rainfall">
-          <TabsList className="mb-4">
-            <TabsTrigger value="rainfall">Rainfall Map</TabsTrigger>
-            <TabsTrigger value="temperature">Temperature Map</TabsTrigger>
-            <TabsTrigger value="forecast">Seasonal Forecast</TabsTrigger>
+        <Tabs defaultValue="rainfall" className="w-full">
+          <TabsList className="grid grid-cols-3 w-full max-w-md mb-4">
+            <TabsTrigger value="rainfall">Rainfall</TabsTrigger>
+            <TabsTrigger value="temperature">Temperature</TabsTrigger>
+            <TabsTrigger value="humidity">Humidity</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="rainfall">
-            <Card>
-              <CardHeader>
-                <CardTitle>Rainfall Distribution Map</CardTitle>
-                <CardDescription>Current rainfall patterns across Kenya</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px] flex items-center justify-center bg-muted">
-                <div className="text-center text-muted-foreground">
-                  <CloudRain className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>Rainfall map visualization will be displayed here</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="rainfall" className="p-4 bg-white rounded-lg border">
+            <h3 className="text-lg font-semibold mb-4">Monthly Rainfall Patterns</h3>
+            <div className="h-64 bg-muted rounded-md flex items-center justify-center">
+              <p className="text-muted-foreground">Rainfall chart will be displayed here</p>
+            </div>
           </TabsContent>
-          
-          <TabsContent value="temperature">
-            <Card>
-              <CardHeader>
-                <CardTitle>Temperature Map</CardTitle>
-                <CardDescription>Current temperature patterns across Kenya</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px] flex items-center justify-center bg-muted">
-                <div className="text-center text-muted-foreground">
-                  <Thermometer className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>Temperature map visualization will be displayed here</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="temperature" className="p-4 bg-white rounded-lg border">
+            <h3 className="text-lg font-semibold mb-4">Temperature Trends</h3>
+            <div className="h-64 bg-muted rounded-md flex items-center justify-center">
+              <p className="text-muted-foreground">Temperature chart will be displayed here</p>
+            </div>
           </TabsContent>
-          
-          <TabsContent value="forecast">
-            <Card>
-              <CardHeader>
-                <CardTitle>Seasonal Forecast</CardTitle>
-                <CardDescription>Long-term weather predictions for planning</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px] flex items-center justify-center bg-muted">
-                <div className="text-center text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>Seasonal forecast data will be displayed here</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="humidity" className="p-4 bg-white rounded-lg border">
+            <h3 className="text-lg font-semibold mb-4">Humidity Levels</h3>
+            <div className="h-64 bg-muted rounded-md flex items-center justify-center">
+              <p className="text-muted-foreground">Humidity chart will be displayed here</p>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Weather-Based Planting Calendar</CardTitle>
+          <CardDescription>Optimal planting times based on local climate data</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-medium mb-2">Short Rains Season (Oct-Dec)</h4>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Beans - Early October</li>
+                <li>Maize - Mid October</li>
+                <li>Kale - Throughout season</li>
+                <li>Tomatoes - Early November</li>
+              </ul>
+            </div>
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-medium mb-2">Long Rains Season (Mar-May)</h4>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Maize - Early March</li>
+                <li>Beans - Mid March</li>
+                <li>Sweet Potatoes - Late March</li>
+                <li>Cassava - Early April</li>
+              </ul>
+            </div>
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-medium mb-2">Dry Season (Jun-Sep)</h4>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Drought resistant crops</li>
+                <li>Sorghum - Early June</li>
+                <li>Millet - Mid June</li>
+                <li>Cowpeas - July</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
