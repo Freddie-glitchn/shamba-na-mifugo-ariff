@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Calendar, MapPin, Shovel, Plants, RefreshCw, CircleAlert, 
+  Calendar, MapPin, Shovel, Leaf, RefreshCw, CircleAlert, 
   ListChecks, TrendingUp, Clipboard, AlertCircle, Tractor,
-  Trash2, PenSquare, Leaf, Egg, Cow
+  Trash2, PenSquare, SproutIcon, Egg
 } from "lucide-react";
 
 // Mock farm data
@@ -226,7 +225,7 @@ const FarmManagement = () => {
           </SelectContent>
         </Select>
         <Button className="w-full md:w-auto">
-          <Plants className="h-4 w-4 mr-2" />
+          <Leaf className="h-4 w-4 mr-2" />
           Add New Farm
         </Button>
       </div>
@@ -273,7 +272,7 @@ const FarmManagement = () => {
               <span className="hidden sm:inline">Crops</span>
             </TabsTrigger>
             <TabsTrigger value="livestock">
-              <Cow className="h-4 w-4 mr-2" />
+              <Egg className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Livestock</span>
             </TabsTrigger>
             <TabsTrigger value="equipment">
@@ -366,7 +365,7 @@ const FarmManagement = () => {
 
               <div className="text-center">
                 <Button>
-                  <Plants className="h-4 w-4 mr-2" />
+                  <Leaf className="h-4 w-4 mr-2" />
                   Add New Field
                 </Button>
               </div>
@@ -399,7 +398,7 @@ const FarmManagement = () => {
                         {animal.type === "Poultry" ? (
                           <Egg className="h-5 w-5 mr-2 text-muted-foreground" />
                         ) : (
-                          <Cow className="h-5 w-5 mr-2 text-muted-foreground" />
+                          <Tractor className="h-5 w-5 mr-2 text-muted-foreground" />
                         )}
                         {animal.count}
                       </div>
@@ -454,7 +453,7 @@ const FarmManagement = () => {
 
               <div className="text-center">
                 <Button>
-                  <Cow className="h-4 w-4 mr-2" />
+                  <Egg className="h-4 w-4 mr-2" />
                   Add Livestock
                 </Button>
               </div>
