@@ -21,7 +21,9 @@ import FarmManagement from "./pages/FarmManagement";
 import FarmNotes from "./pages/FarmNotes";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
+import { StrictMode } from "react";
 
+// Create a client outside of components to avoid recreating it on each render
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -116,17 +118,19 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </StrictMode>
 );
 
 export default App;

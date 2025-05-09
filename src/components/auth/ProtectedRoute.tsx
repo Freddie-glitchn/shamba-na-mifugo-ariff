@@ -40,7 +40,7 @@ const ProtectedRoute = ({
         if (requiredPermission && auth.user) {
           // This is a mock implementation - in a real app,
           // you would check user permissions from the auth context
-          const mockUserPermissions = auth.user.permissions || []; 
+          const mockUserPermissions = auth.user.role === 'admin' ? ['admin', 'edit', 'delete'] : ['view']; 
           const hasRequiredPermission = mockUserPermissions.includes(requiredPermission);
           setHasPermission(hasRequiredPermission);
           
