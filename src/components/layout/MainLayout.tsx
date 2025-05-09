@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import Navbar from './Navbar';
 import MobileNav from './MobileNav';
 import Footer from './Footer';
+import MenuBar from './MenuBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="app-container min-h-screen flex flex-col">
       <Navbar />
+      <div className="container max-w-6xl px-4 hidden md:block">
+        <MenuBar />
+      </div>
       <main className={cn("flex-grow", contentPadding)}>
         <div className={cn(
           "mx-auto", 
